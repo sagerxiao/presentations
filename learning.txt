@@ -1,4 +1,2 @@
 This is a git learning file.
 This is another line.
-
-aaljfal

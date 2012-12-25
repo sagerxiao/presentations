@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>web front rules of automation</title>
+
+		<meta name="description" content="extjs|css|html">
+		<meta name="author" content="Lijun">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Automation</h1>
+					<h3>前端规范</h3>
+					<ol>
+						<li><a href="#/1">Form</a></li>
+						<li><a href="#/2">Menu & Icon</a></li>
+						<li><a href="#/3">Grid</a></li>
+						<li><a href="#/4">Grid Detail</a></li>
+						<li><a href="#/5">Toolbar</a></li>
+						<li><a href="#/6">使用Ext.require来管理模块加载</a></li>
+					</ol>
+				</section>
+				<section>
+					<section>
+						<h3>Form</h3>
+						<ol>	
+							<li><a href="#/1/1">Label 靠右对齐</a></li>
+							<li><a href="#/1/2">Title要写详细</a></li>
+							<li><a href="#/1/3">必填项需要在Label后加*表示</a></li>
+							<li><a href="#/1/4">尽量使用模态窗口</a></li>
+							<li><a href="#/1/5">确定/关闭/重置等按钮置于右下角</a></li>
+							<li><a href="#/1/6">复杂表单拆分成N个fieldsets</a></li>
+							<li>表单show时初始化到iframe中间位置</li>
+						</ol>
+					</section>
+					<section>
+						<h3>Form 1</h3>
+						<p>Label 靠右对齐</p>
+						<pre><code contenteditable>
+var formPanel = Ext.create('Ext.form.Panel',{
+	...
+	fieldDefaults:{
+		labelAlign: 'right'
+	}
+	...
+})
+                    </code></pre>
+					</section>
+					<section>
+						<h3>Form 2</h3>
+						<p>Title要写详细</p>
+						<pre><code contenteditable>
+var formWindow = Ext.create('Ext.window.Window',{
+	...
+	title: '批量修改任务', // Good
+
+	title: '批量修改',  // Bad
+	...
+})
+					</code></pre>
+					</section>
+					<section>
+						<h3>Form 3</h3>
+						<p>必填项需要在Label后加*表示</p>
+						<pre>
+							<code contenteditable>
+...
+// locale_user.name defined in web/static/js/common/zh_cn.js
+fieldLabel: locale_user.name,  // Good
+allowBlank: false,
+afterLabelTextTpl: required,  // display a red '*' after fieldLabel
+
+fieldLabel: locale_user.name + '*',  // Bad
+allowBlank: false,
+
+fieldLabel: locale_user,  // Bad
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Form 4</h3>
+						<p>文本框和文本域使用友好的提示信息</p>
+						<pre>
+							<code contenteditable>
+...
+emptyText: locale_common.enterName, // Good 
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Form 5</h3>
+						<p>尽量使用模态窗口</p>
+						<pre><code contenteditable>
+var formWindow = Ext.create('Ext.window.Window',{
+	...
+	modal: true,
+
+	...
+})
+					</code></pre>
+					</section>
+					<section>
+						<h3>Form 5</h3>
+						<p>确定/关闭/重置等按钮置于右下角</p>
+						<pre><code contenteditable>
+var formWindow = Ext.create('Ext.window.Window',{
+	...
+	bbar:{
+		'->',
+		{
+			text:'确定',
+			...
+		},
+		'-'，
+		{
+			text:'关闭',
+			...
+		}	
+	},
+	...
+})
+					</code></pre>
+					</section>
+					<section>
+						<h3>Form 6</h3>
+						<p>复杂表单拆分成N个fieldsets</p>
+						<pre><code contenteditable>
+...
+items: [
+	{
+        xtype: 'fieldset',
+        title: 'User Information',
+        items: [field_1,field_2]
+    },
+    {
+
+    	xtype: 'fieldset',
+    	title: 'Phone Info',
+    	items: [field_3,field_4]
+	}
+],
+...
+            			</code></pre>
+            		</section>
+				</section>
+				<section>
+					<section>
+						<h3>Menu & Icon</h3>
+						<ol>
+							<li><a href="#/2/1">统一常用菜单项，如:新增|修改|删除</a></li>
+							<li><a href="#/2/1">统一所有的工具栏图标类以icon-{name}方法书写</a></li>
+							<li><a href="#/2/2">所有的删除和批量操作需要弹出模态窗口做是/否确认</a></li>
+						</ol>
+					</section>
+					<section>
+						<h3>Menu & Icon 1</h3>
+						<p>统一常用菜单项和图标类</p>
+						<pre>
+							<code contenteditable>
+...
+text: locale_menu.add,
+iconCls: 'icon-add', 
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Menu & Icon 2</h3>
+						<p>模态窗口做是/否确认</p>
+						<pre>
+							<code contenteditable>
+...
+Qzauto.Msg.confirm(locale.common.deleteConfirm, function(){
+	//Do Delete or Batch edit or other operation
+	...
+});
+...
+							</code>
+						</pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h3>Grid</h3>
+						<ol>
+							<li><a href="#/3/1">普通列表视图统一使用Qzauto.component.Xgrid</a></li>
+							<li><a href="#/3/2">需要显示完整的列使用固定列宽，其余用动态列宽</a></li>
+							<li><a href="#/3/3">排序方式，按最后修改时间和ID逆序</a></li>
+							<li><a href="#/3/4">根据选择的列的数量和状态启用或停用相关的按钮</a></li>
+							<li>字段顺序，数字对齐方式，保存用户拖动和拉宽的列属性</li>
+						</ol>
+					</section>
+					<section>
+						<h3>Grid 1</h3>
+						<p>普通列表视图统一使用Qzauto.component.Xgrid</p>
+						<pre>
+							<code contenteditable>
+...
+var gird = Ext.create("Qzauto.component.Xgrid",{
+	...
+});
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Grid 2</h3>
+						<p>需要显示完整的列使用固定列宽，其余用动态列宽</p>
+						<pre>
+							<code contenteditable>
+...
+var gird = Ext.create("Qzauto.component.Xgrid",{
+	...
+	// Xgrid 重新封装过的缩写api
+	// n->name, w->width, f->flex
+	filedsConf  : [ 
+					...
+                    {n:'name'            , w:130}, //定宽
+                    {n:'abbr'            , f:1}    //动态
+                    ...
+                  ]
+    ...
+});
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Grid 3</h3>
+						<p>排序方式，按最后修改时间和ID逆序</p>
+						<pre>
+							<code contenteditable>
+...
+#sqlalchemy
+q = session.query(model.User).order_by("gmt_modify desc, id desc")
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Grid 4</h3>
+						<p>根据选择的列的数量和状态启用或停用相关的按钮</p>
+						<ol>
+							<li>需要选择记录的按钮初始化时disabled</li>
+							<li>处理单选的按钮在多选的情况下disabled</li>
+							<li>需要判断选中记录某字段状态的按钮在选择记录就进行判断，不合条件的disable按钮</li>
+						</ol>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h3>Grid Detail</h3>
+						<ol>
+							<li><a href="#/4/1">表格行首用加号展开</a></li>
+							<li><a href="#/4/2">弹出模态窗口方式</a></li>
+						</ol>
+					</section>
+					<section>
+						<h3>Grid Detail 1</h3>
+						<p>表格行首"+"号展开式</p>
+						<pre>
+							<code contenteditable>
+...
+//需要将RowExpander插件整合到Xgrid
+Ext.require('Ext.ux.RowExpander');
+var gridExpander = Ext.create('Qzauto.component.Xgrid', {
+	...
+	plugins: [{
+            ptype: 'rowexpander',
+            rowBodyTpl: [
+            	'&lt;p&gt;&lt;b&gt;Company:&lt;/b&gt; {company}&lt;/p&gt;&lt;br&gt;', 
+            	'&lt;p&gt;&lt;b&gt;Summary:&lt;/b&gt; {desc}&lt;/p&gt;'
+            ]
+        }],
+    ...
+});
+...
+							</code>
+						</pre>
+					</section>
+					<section>
+						<h3>Grid Detail 2</h3>
+						<p>弹出模态窗口方式</p>
+						<ol>
+							<li>弃用disabled表单元素的展现方式</li>
+							<li>使用文本+图标展现方式，信息复杂时进行类似fieldset的归类显示</li>
+							<li>窗口模式支持上下翻阅当前页记录</li>
+						</ol>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h3>Toolbar</h3>
+						<ol>
+							<li>顶部工具栏包括搜索选项和动作按钮</li>
+							<li>搜索分为快速搜索和高级搜索(用Panel隐藏/显示)</li>
+							<li>顶部工具栏的动作按钮间使用|分割</li>
+							<li>顶部工具栏靠左对齐，底部工具栏靠右对齐</li>
+						</ol>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h3>使用Ext.require来管理模块加载</h3>
+						<ol>
+							<li>解决文件加载的先后问题</li>
+							<li>按需加载</li>
+							<li>减少合并js组件文件对于page目录js没有影响</li>
+							<li>标点符号使用半角</li>
+						</ol>
+					</section>
+				</section>
+			</div>
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
